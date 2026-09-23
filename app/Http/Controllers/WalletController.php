@@ -1,0 +1,101 @@
+<?php
+namespace App\Http\Controllers;
+
+use App\Models\User;
+use App\Models\Wallet;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
+
+class WalletController extends Controller
+{
+    public function __construct() {
+        // Staff Permission Check
+        $this->middleware(['permission:view_all_offline_wallet_recharges'])->only('offline_recharge_request');
+    }
+
+    public function index()
+    {
+        $wallets = Wallet::where('user_id', Auth::user()->id)->latest()->paginate(9);
+        return view('frontend.user.wallet.index', compact('wallets'));
+    }
+
+    public function recharge(Request $request)
+    {
+        if ($request->payment_option !== 'sslcommerz') {
+            flash(translate('Only SSLCommerz is available for wallet recharge.'))->warning();
+            return back();
+        }
+
+        $data['amount'] = $request->amount;
+        $data['payment_method'] = $request->payment_option;
+
+        $request->session()->put('payment_type', 'wallet_payment');
+        $request->session()->put('payment_data', $data);
+
+        $request->session()->put('payment_type', 'wallet_payment');
+        $request->session()->put('payment_data', $data);
+
+        $decorator = __NAMESPACE__ . '\\Payment\\' . str_replace(' ', '', ucwords(str_replace('_', ' ', $request->payment_option))) . "Controller";
+        if (class_exists($decorator)) {
+            return (new $decorator)->pay($request);
+        }
+    }
+
+    public function wallet_payment_done(array $payment_data, mixed $payment_details)
+    {
+        /** @var User $user */
+        $user = Auth::user();
+
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
+        $user->balance = $user->balance + $payment_data['amount'];
+        $user->save();
+
+        $wallet = new Wallet;
+        $wallet->user_id = $user->id;
+        $wallet->amount = $payment_data['amount'];
+        $wallet->payment_method = $payment_data['payment_method'];
+        $wallet->payment_details = $payment_details;
+        $wallet->save();
+
+        Session::forget('payment_data');
+        Session::forget('payment_type');
+
+        flash(translate('Payment completed'))->success();
+        return redirect()->route('wallet.index');
+    }
+
+    public function offline_recharge(Request $request)
+    {
+        flash(translate('Only SSLCommerz is available for wallet recharge.'))->warning();
+        return redirect()->route('wallet.index');
+    }
+
+    public function offline_recharge_request()
+    {
+        $wallets = Wallet::where('offline_payment', 1)->paginate(10);
+        return view('manual_payment_methods.wallet_request', compact('wallets'));
+    }
+
+    public function updateApproved(Request $request)
+    {
+        $wallet = Wallet::findOrFail($request->id);
+        $wallet->approval = $request->status;
+        if ($request->status == 1) {
+            $user = $wallet->user;
+            $user->balance = $user->balance + $wallet->amount;
+            $user->save();
+        } else {
+            $user = $wallet->user;
+            $user->balance = $user->balance - $wallet->amount;
+            $user->save();
+        }
+        if ($wallet->save()) {
+            return 1;
+        }
+        return 0;
+    }
+}
