@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Language;
 
 class WebsiteController extends Controller
 {
@@ -19,8 +20,12 @@ class WebsiteController extends Controller
 		return view('backend.website_settings.header');
 	}
 	public function footer(Request $request)
-	{	
-		$lang = $request->lang;
+	{
+		$lang = $request->input('lang');
+		if ($lang === null) {
+			$lang = Language::where('code', env('DEFAULT_LANGUAGE'))->value('code')
+				?? Language::query()->value('code');
+		}
 		return view('backend.website_settings.footer', compact('lang'));
 	}
 	public function pages(Request $request)

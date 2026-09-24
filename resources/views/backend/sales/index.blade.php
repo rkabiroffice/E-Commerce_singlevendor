@@ -116,7 +116,7 @@
                             @endif
                         </td>
                         <td>
-                            {{ single_price($order->grand_total) }}
+                            {{ single_price($order->grand_total ?? 0) }}
                         </td>
                         <td>
                             {{ translate(ucfirst(str_replace('_', ' ', $order->delivery_status))) }}

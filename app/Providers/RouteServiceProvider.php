@@ -45,6 +45,8 @@ class RouteServiceProvider extends ServiceProvider
      // Single-vendor store: seller and seller API route groups are disabled.
      $this->mapAdminRoutes();
 
+    $this->mapAffiliateRoutes();
+
     $this->mapClubPointsRoutes();
 
      $this->mapOtpRoutes();

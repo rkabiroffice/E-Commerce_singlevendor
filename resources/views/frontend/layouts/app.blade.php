@@ -158,6 +158,37 @@
 
         @yield('content')
 
+        @php
+            $footer_brands = \App\Models\Brand::whereNotNull('logo')->get();
+        @endphp
+
+        @if ($footer_brands->isNotEmpty())
+            <section class="mb-4">
+                <div class="container">
+                    <div class="px-2 py-4 px-md-4 py-md-3 bg-white shadow-sm rounded">
+                        <div class="d-flex mb-3 align-items-baseline border-bottom">
+                            <h3 class="h5 fw-700 mb-0">
+                                <span class="border-bottom border-primary border-width-2 pb-3 d-inline-block">
+                                    {{ translate('Featured Brands') }}
+                                </span>
+                            </h3>
+                            <a href="{{ url('/brands') }}" class="ml-auto mr-0 btn btn-primary btn-sm shadow-md">{{ translate('View More') }}</a>
+                        </div>
+                        <div class="aiz-carousel gutters-10 half-outside-arrow" data-items="6" data-xl-items="5" data-lg-items="4" data-md-items="3" data-sm-items="2" data-xs-items="2" data-arrows="true" data-infinite="true">
+                            @foreach ($footer_brands as $brand)
+                                <div class="carousel-box">
+                                    <a href="{{ url('/brands/' . $brand->slug) }}" class="d-flex flex-column align-items-center justify-content-center border border-light rounded hov-shadow-md my-2 p-3" title="{{ $brand->getTranslation('name') }}">
+                                        <img src="{{ static_asset('assets/img/placeholder-rect.jpg') }}" data-src="{{ uploaded_asset($brand->logo) }}" class="lazyload mw-100 mh-50px" alt="{{ $brand->getTranslation('name') }}">
+                                        <span class="d-block text-center text-truncate w-100 mt-2 fs-13 fw-600">{{ $brand->getTranslation('name') }}</span>
+                                    </a>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+            </section>
+        @endif
+
         @include('frontend.inc.footer')
 
     </div>

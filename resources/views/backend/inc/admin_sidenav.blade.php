@@ -57,6 +57,68 @@
                     </ul>
                 </li>
 
+                @if (addon_is_activated('pos_system') && auth()->user()->can('pos_manager'))
+                    <li class="aiz-side-nav-item">
+                        <a href="{{ route('poin-of-sales.index') }}" class="aiz-side-nav-link">
+                            <i class="las la-cash-register aiz-side-nav-icon"></i>
+                            <span class="aiz-side-nav-text">{{ translate('Point of Sale') }}</span>
+                        </a>
+                    </li>
+                @endif
+
+                @if (addon_is_activated('offline_payment'))
+                    <li class="aiz-side-nav-item">
+                        <a href="#" class="aiz-side-nav-link">
+                            <i class="las la-money-check-alt aiz-side-nav-icon"></i>
+                            <span class="aiz-side-nav-text">{{ translate('Offline Payment') }}</span>
+                            <span class="aiz-side-nav-arrow"></span>
+                        </a>
+                        <ul class="aiz-side-nav-list level-2">
+                            <li class="aiz-side-nav-item"><a href="{{ route('manual_payment_methods.index') }}" class="aiz-side-nav-link"><span class="aiz-side-nav-text">{{ translate('Manual Payment Methods') }}</span></a></li>
+                            <li class="aiz-side-nav-item"><a href="{{ route('offline_wallet_recharge_request.index') }}" class="aiz-side-nav-link"><span class="aiz-side-nav-text">{{ translate('Wallet Recharge Requests') }}</span></a></li>
+                            <li class="aiz-side-nav-item"><a href="{{ route('offline_customer_package_payment_request.index') }}" class="aiz-side-nav-link"><span class="aiz-side-nav-text">{{ translate('Customer Package Payments') }}</span></a></li>
+                        </ul>
+                    </li>
+                @endif
+
+                @if (addon_is_activated('otp_system'))
+                    <li class="aiz-side-nav-item">
+                        <a href="#" class="aiz-side-nav-link">
+                            <i class="las la-mobile-alt aiz-side-nav-icon"></i>
+                            <span class="aiz-side-nav-text">{{ translate('OTP & SMS') }}</span>
+                            <span class="aiz-side-nav-arrow"></span>
+                        </a>
+                        <ul class="aiz-side-nav-list level-2">
+                            <li class="aiz-side-nav-item"><a href="{{ route('otp.configconfiguration') }}" class="aiz-side-nav-link"><span class="aiz-side-nav-text">{{ translate('OTP Configuration') }}</span></a></li>
+                            <li class="aiz-side-nav-item"><a href="{{ route('otp_credentials.index') }}" class="aiz-side-nav-link"><span class="aiz-side-nav-text">{{ translate('OTP Credentials') }}</span></a></li>
+                            <li class="aiz-side-nav-item"><a href="{{ route('sms.index') }}" class="aiz-side-nav-link"><span class="aiz-side-nav-text">{{ translate('SMS') }}</span></a></li>
+                            <li class="aiz-side-nav-item"><a href="{{ route('sms-templates.index') }}" class="aiz-side-nav-link"><span class="aiz-side-nav-text">{{ translate('SMS Templates') }}</span></a></li>
+                        </ul>
+                    </li>
+                @endif
+
+                @if (addon_is_activated('affiliate_system') && auth()->user()->can('affiliate_configurations'))
+                    <li class="aiz-side-nav-item">
+                        <a href="#" class="aiz-side-nav-link">
+                            <i class="las la-users aiz-side-nav-icon"></i>
+                            <span class="aiz-side-nav-text">{{ translate('Affiliate') }}</span>
+                            <span class="aiz-side-nav-arrow"></span>
+                        </a>
+                        <ul class="aiz-side-nav-list level-2">
+                            <li class="aiz-side-nav-item"><a href="{{ route('affiliate.index') }}" class="aiz-side-nav-link"><span class="aiz-side-nav-text">{{ translate('Affiliate Settings') }}</span></a></li>
+                            @if (auth()->user()->can('view_affiliate_users'))
+                                <li class="aiz-side-nav-item"><a href="{{ route('affiliate.users') }}" class="aiz-side-nav-link"><span class="aiz-side-nav-text">{{ translate('Affiliate Users') }}</span></a></li>
+                            @endif
+                            @if (auth()->user()->can('view_affiliate_withdraw_requests'))
+                                <li class="aiz-side-nav-item"><a href="{{ route('affiliate.withdraw_requests') }}" class="aiz-side-nav-link"><span class="aiz-side-nav-text">{{ translate('Withdraw Requests') }}</span></a></li>
+                            @endif
+                            @if (auth()->user()->can('view_affiliate_logs'))
+                                <li class="aiz-side-nav-item"><a href="{{ route('affiliate.logs.admin') }}" class="aiz-side-nav-link"><span class="aiz-side-nav-text">{{ translate('Affiliate Logs') }}</span></a></li>
+                            @endif
+                        </ul>
+                    </li>
+                @endif
+
                 <li class="aiz-side-nav-item">
                     <a href="#" class="aiz-side-nav-link">
                         <i class="las la-user aiz-side-nav-icon"></i>

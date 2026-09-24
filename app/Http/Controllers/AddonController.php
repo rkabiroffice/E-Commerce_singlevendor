@@ -6,10 +6,10 @@ use Illuminate\Http\Request;
 use App\Models\BusinessSetting;
 use App\Models\Addon;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use ZipArchive;
-use Storage;
-use Cache;
-use DB;
 
 class AddonController extends Controller
 {
@@ -56,28 +56,25 @@ class AddonController extends Controller
 
         if (class_exists('ZipArchive')) {
             if ($request->hasFile('addon_zip')) {
-                // Create update directory.
-                $dir = 'addons';
-                if (!is_dir($dir))
-                    mkdir($dir, 0777, true);
-
-                $path = Storage::put('addons', $request->addon_zip);
-
                 $zipped_file_name = $request->addon_zip->getClientOriginalName();
+                $path = Storage::putFileAs('addons', $request->file('addon_zip'), $zipped_file_name);
+                if ($path === false) {
+                    flash(translate('The addon ZIP file could not be saved.'))->error();
+                    return back();
+                }
 
                 //Unzip uploaded update file and remove zip file.
                 $zip = new ZipArchive;
-                $res = $zip->open(base_path('public/' . $path));
-
-                $random_dir = Str::random(10);
-
-                $dir = trim($zip->getNameIndex(0), '/');
+                $res = $zip->open(Storage::path($path));
 
                 if ($res === true) {
+                    $random_dir = Str::random(10);
+                    $dir = trim($zip->getNameIndex(0), '/');
                     $res = $zip->extractTo(base_path('temp/' . $random_dir . '/addons'));
                     $zip->close();
                 } else {
-                    dd('could not open');
+                    flash(translate('The uploaded addon ZIP file could not be opened.'))->error();
+                    return back();
                 }
 
                 $str = file_get_contents(base_path('temp/' . $random_dir . '/addons/' . $dir . '/config.json'));
@@ -210,7 +207,7 @@ class AddonController extends Controller
      * Update the specified resource in storage.
      *
      * @param \Illuminate\Http\Request $request
-     * @param \App\Models\Addon $addon
+        * @param int|string $id
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
@@ -221,7 +218,7 @@ class AddonController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param \App\Models\Addon $addon
+        * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
     public function activation(Request $request)
